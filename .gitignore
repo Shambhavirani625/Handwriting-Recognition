@@ -1,0 +1,38 @@
+# Ignore Python compiled files
+__pycache__/
+*.py[cod]
+*.so
+
+# Ignore virtual environment
+venv/
+env/
+*.venv
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore log and temporary files
+*.log
+*.tmp
+
+# Ignore Flask uploads folder
+uploads/
+
+# Ignore frontend build files
+frontend/node_modules/
+frontend/build/
+
+# Ignore dependency files
+*.lock
+package-lock.json
+pip-log.txt
+
+# Ignore IDE/editor specific files
+.vscode/
+.idea/
+*.swp
+
+# Ignore Tesseract OCR models (if downloaded)
+tessdata/
+*.traineddata

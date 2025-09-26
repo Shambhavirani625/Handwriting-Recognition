@@ -1,0 +1,65 @@
+{% extends "base.jinja.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: auto; padding: 2rem;">
+    <h2 style="text-align:center; margin-bottom: 1rem;">📝 OCR Text Extractor</h2>
+
+    <!-- File upload UI -->
+    <div style="border: 2px dashed #888; padding: 1.5rem; text-align:center; border-radius: 8px;">
+        <input type="file" id="imageInput" accept="image/*" style="margin-bottom: 1rem;">
+        <br>
+        <button id="uploadBtn" style="padding: 0.5rem 1rem; border:none; background:#007bff; color:#fff; border-radius:4px;">
+            Extract Text
+        </button>
+    </div>
+
+    <!-- Preview uploaded image -->
+    <div style="margin-top: 1.5rem; text-align:center;">
+        <img id="preview" src="" alt="Image preview" style="max-width: 100%; display:none; border-radius: 6px;"/>
+    </div>
+
+    <!-- Extracted text -->
+    <div style="margin-top: 2rem;">
+        <h3>📄 Extracted Text:</h3>
+        <textarea id="resultText" rows="8" style="width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 6px;"></textarea>
+    </div>
+</div>
+
+<script>
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+    const fileInput = document.getElementById("imageInput");
+    const file = fileInput.files[0];
+    if (!file) {
+        alert("Please select an image first!");
+        return;
+    }
+
+    // Show preview
+    const preview = document.getElementById("preview");
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+
+    // Send as raw bytes via FormData
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch("/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+        let error = data.error || null;
+        if (error) {
+            alert("Error: " + error);
+            return;
+        }
+        document.getElementById("resultText").value = data.text || "No text extracted.";
+    } catch (err) {
+        console.error(err);
+        alert("Error extracting text. Check console for details.");
+    }
+});
+</script>
+{% endblock %}
