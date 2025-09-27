@@ -6,7 +6,8 @@
 
     <!-- File upload UI -->
     <div style="border: 2px dashed #888; padding: 1.5rem; text-align:center; border-radius: 8px;">
-        <input type="file" id="imageInput" accept="image/*" style="margin-bottom: 1rem;">
+        <label for="imageInput" style="display:block; margin-bottom:0.5rem;">Select an image file</label>
+        <input type="file" id="imageInput" accept="image/*" class="image-input" title="Upload an image file for text extraction" placeholder="Choose image file">
         <br>
         <button id="uploadBtn" style="padding: 0.5rem 1rem; border:none; background:#007bff; color:#fff; border-radius:4px;">
             Extract Text
@@ -21,7 +22,8 @@
     <!-- Extracted text -->
     <div style="margin-top: 2rem;">
         <h3>📄 Extracted Text:</h3>
-        <textarea id="resultText" rows="8" style="width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 6px;"></textarea>
+        <label for="resultText" style="display:none;">Extracted Text</label>
+        <textarea id="resultText" rows="8" class="result-textarea" title="Extracted text area" placeholder="Extracted text will appear here"></textarea>
     </div>
 </div>
 
