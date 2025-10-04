@@ -1,32 +1,157 @@
 {% extends "base.jinja.html" %}
 
 {% block content %}
-<div class="container" style="max-width: 600px; margin: auto; padding: 2rem;">
-    <h2 style="text-align:center; margin-bottom: 1rem;">📝 OCR Text Extractor</h2>
+<style>
+    /* -------------------------------------- */
+    /* 1. CSS Variables for Theming (Easy to change colors) */
+    /* -------------------------------------- */
+    :root {
+        --background-color: #1e1e1e; /* Dark background */
+        --surface-color: #252526;    /* Slightly lighter surface for panels */
+        --text-color: #cccccc;       /* Light gray text */
+        --accent-color: #007acc;     /* Blue accent color for buttons/focus */
+        --border-color: #333333;     /* Darker border */
+        --shadow-color: rgba(0, 0, 0, 0.4);
+        --focus-ring: #0099ff;
+    }
 
-    <!-- File upload UI -->
-    <div style="border: 2px dashed #888; padding: 1.5rem; text-align:center; border-radius: 8px;">
+    /* Apply base styles to the body (assuming it's dark from "base.jinja.html") */
+    /* If not, uncomment the following: */
+    /* body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    } */
+
+    /* -------------------------------------- */
+    /* 2. Layout and Typography */
+    /* -------------------------------------- */
+    .container {
+        /* Your inline style is fine, but adding a shadow for depth */
+        box-shadow: 0 4px 15px var(--shadow-color);
+        border-radius: 10px;
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+    }
+
+    h2 {
+        color: var(--accent-color) !important; /* Use important to override inline style */
+        font-weight: 400; /* Lighter font weight for modern look */
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 2rem !important; /* Increase space below the main title */
+    }
+
+    h3 {
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    /* -------------------------------------- */
+    /* 3. File Upload Area (The dashed box) */
+    /* -------------------------------------- */
+    .file-upload-box {
+        border: 2px dashed var(--accent-color) !important; /* Use accent color for dashed border */
+        padding: 2rem !important;
+        border-radius: 10px !important;
+        background-color: #2a2a2a; /* Slightly darker than surface for better contrast */
+        transition: all 0.3s ease;
+    }
+
+    .file-upload-box:hover {
+        border-color: var(--focus-ring) !important;
+        background-color: #2f2f2f;
+    }
+
+    .image-input {
+        color: var(--text-color);
+        /* Style the file input button itself */
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 8px;
+        background-color: #3a3a3a;
+        width: calc(100% - 16px);
+        margin-top: 10px;
+        box-sizing: border-box;
+    }
+
+    /* -------------------------------------- */
+    /* 4. Buttons */
+    /* -------------------------------------- */
+    #uploadBtn {
+        background: var(--accent-color) !important;
+        color: white !important;
+        font-weight: bold;
+        padding: 0.75rem 1.5rem !important;
+        border-radius: 6px !important;
+        margin-top: 1rem;
+        transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    #uploadBtn:hover {
+        background: #0066b3 !important;
+    }
+
+    #uploadBtn:active {
+        transform: scale(0.98);
+    }
+
+    /* -------------------------------------- */
+    /* 5. Text Area (Input/Output) */
+    /* -------------------------------------- */
+    .result-textarea {
+        width: 100%;
+        padding: 15px;
+        background-color: #2a2a2a;
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 1em;
+        line-height: 1.5;
+        resize: vertical;
+        box-sizing: border-box;
+        transition: border-color 0.2s ease;
+    }
+
+    .result-textarea:focus {
+        border-color: var(--focus-ring);
+        outline: none;
+    }
+
+    /* -------------------------------------- */
+    /* 6. Image Preview */
+    /* -------------------------------------- */
+    #preview {
+        max-height: 250px; /* Constrain the height */
+        object-fit: contain; /* Ensure the image fits without cropping */
+        border: 1px solid var(--border-color);
+        padding: 5px;
+        background-color: #3a3a3a;
+    }
+</style>
+<div class="container" style="max-width: 600px; margin: auto; padding: 2rem;">
+    <h2 style="text-align:center;">📝 OCR Text Extractor</h2>
+
+    <div class="file-upload-box">
         <label for="imageInput" style="display:block; margin-bottom:0.5rem;">Select an image file</label>
         <input type="file" id="imageInput" accept="image/*" class="image-input" title="Upload an image file for text extraction" placeholder="Choose image file">
         <br>
-        <button id="uploadBtn" style="padding: 0.5rem 1rem; border:none; background:#007bff; color:#fff; border-radius:4px;">
+        <button id="uploadBtn" class="action-button">
             Extract Text
         </button>
     </div>
 
-    <!-- Preview uploaded image -->
     <div style="margin-top: 1.5rem; text-align:center;">
         <img id="preview" src="" alt="Image preview" style="max-width: 100%; display:none; border-radius: 6px;"/>
     </div>
 
-    <!-- Extracted text -->
     <div style="margin-top: 2rem;">
         <h3>📄 Extracted Text:</h3>
         <label for="resultText" style="display:none;">Extracted Text</label>
         <textarea id="resultText" rows="8" class="result-textarea" title="Extracted text area" placeholder="Extracted text will appear here"></textarea>
     </div>
 </div>
-
 <script>
 document.getElementById("uploadBtn").addEventListener("click", async () => {
     const fileInput = document.getElementById("imageInput");

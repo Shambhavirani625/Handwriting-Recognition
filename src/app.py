@@ -27,7 +27,7 @@ def upload():
     file = request.files["file"]
 
     processed_image = preprocess_image(file.read())
-    extracted_text = pytesseract.image_to_string(processed_image, lang='hin')
+    extracted_text = pytesseract.image_to_string(processed_image, lang='hin', config='--psm 6')
 
     print(extracted_text)
 
