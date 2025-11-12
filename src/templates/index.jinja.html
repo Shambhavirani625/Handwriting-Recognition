@@ -6,22 +6,14 @@
     /* 1. CSS Variables for Theming (Easy to change colors) */
     /* -------------------------------------- */
     :root {
-        --background-color: #1e1e1e; /* Dark background */
-        --surface-color: #252526;    /* Slightly lighter surface for panels */
-        --text-color: #cccccc;       /* Light gray text */
-        --accent-color: #007acc;     /* Blue accent color for buttons/focus */
-        --border-color: #333333;     /* Darker border */
+        --background-color: #1e1e1e; 
+        --surface-color: #252526;   
+        --text-color: #cccccc;     
+        --accent-color: #007acc;     
+        --border-color: #333333;     
         --shadow-color: rgba(0, 0, 0, 0.4);
         --focus-ring: #0099ff;
     }
-
-    /* Apply base styles to the body (assuming it's dark from "base.jinja.html") */
-    /* If not, uncomment the following: */
-    /* body {
-        background-color: var(--background-color);
-        color: var(--text-color);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    } */
 
     /* -------------------------------------- */
     /* 2. Layout and Typography */
@@ -52,10 +44,10 @@
     /* 3. File Upload Area (The dashed box) */
     /* -------------------------------------- */
     .file-upload-box {
-        border: 2px dashed var(--accent-color) !important; /* Use accent color for dashed border */
+        border: 2px dashed var(--accent-color) !important; 
         padding: 2rem !important;
         border-radius: 10px !important;
-        background-color: #2a2a2a; /* Slightly darker than surface for better contrast */
+        background-color: #2a2a2a; 
         transition: all 0.3s ease;
     }
 
@@ -123,8 +115,8 @@
     /* 6. Image Preview */
     /* -------------------------------------- */
     #preview {
-        max-height: 250px; /* Constrain the height */
-        object-fit: contain; /* Ensure the image fits without cropping */
+        max-height: 250px;
+        object-fit: contain;
         border: 1px solid var(--border-color);
         padding: 5px;
         background-color: #3a3a3a;
