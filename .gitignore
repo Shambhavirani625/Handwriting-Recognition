@@ -36,3 +36,4 @@ pip-log.txt
 # Ignore Tesseract OCR models (if downloaded)
 tessdata/
 *.traineddata
+*.db

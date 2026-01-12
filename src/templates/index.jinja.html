@@ -1,184 +1,171 @@
 {% extends "base.jinja.html" %}
 
 {% block content %}
-<style>
-    /* -------------------------------------- */
-    /* 1. CSS Variables for Theming (Easy to change colors) */
-    /* -------------------------------------- */
-    :root {
-        --background-color: #1e1e1e; 
-        --surface-color: #252526;   
-        --text-color: #cccccc;     
-        --accent-color: #007acc;     
-        --border-color: #333333;     
-        --shadow-color: rgba(0, 0, 0, 0.4);
-        --focus-ring: #0099ff;
-    }
+<div class="container-fluid vh-100 d-flex flex-column bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 shadow-sm">
+        <a class="navbar-brand fw-semibold">✍ Handwriting Recognition</a>
 
-    /* -------------------------------------- */
-    /* 2. Layout and Typography */
-    /* -------------------------------------- */
-    .container {
-        /* Your inline style is fine, but adding a shadow for depth */
-        box-shadow: 0 4px 15px var(--shadow-color);
-        border-radius: 10px;
-        background-color: var(--surface-color);
-        border: 1px solid var(--border-color);
-    }
-
-    h2 {
-        color: var(--accent-color) !important; /* Use important to override inline style */
-        font-weight: 400; /* Lighter font weight for modern look */
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 2rem !important; /* Increase space below the main title */
-    }
-
-    h3 {
-        color: var(--text-color);
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-    }
-
-    /* -------------------------------------- */
-    /* 3. File Upload Area (The dashed box) */
-    /* -------------------------------------- */
-    .file-upload-box {
-        border: 2px dashed var(--accent-color) !important; 
-        padding: 2rem !important;
-        border-radius: 10px !important;
-        background-color: #2a2a2a; 
-        transition: all 0.3s ease;
-    }
-
-    .file-upload-box:hover {
-        border-color: var(--focus-ring) !important;
-        background-color: #2f2f2f;
-    }
-
-    .image-input {
-        color: var(--text-color);
-        /* Style the file input button itself */
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        padding: 8px;
-        background-color: #3a3a3a;
-        width: calc(100% - 16px);
-        margin-top: 10px;
-        box-sizing: border-box;
-    }
-
-    /* -------------------------------------- */
-    /* 4. Buttons */
-    /* -------------------------------------- */
-    #uploadBtn {
-        background: var(--accent-color) !important;
-        color: white !important;
-        font-weight: bold;
-        padding: 0.75rem 1.5rem !important;
-        border-radius: 6px !important;
-        margin-top: 1rem;
-        transition: background 0.2s ease, transform 0.1s ease;
-    }
-
-    #uploadBtn:hover {
-        background: #0066b3 !important;
-    }
-
-    #uploadBtn:active {
-        transform: scale(0.98);
-    }
-
-    /* -------------------------------------- */
-    /* 5. Text Area (Input/Output) */
-    /* -------------------------------------- */
-    .result-textarea {
-        width: 100%;
-        padding: 15px;
-        background-color: #2a2a2a;
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        font-size: 1em;
-        line-height: 1.5;
-        resize: vertical;
-        box-sizing: border-box;
-        transition: border-color 0.2s ease;
-    }
-
-    .result-textarea:focus {
-        border-color: var(--focus-ring);
-        outline: none;
-    }
-
-    /* -------------------------------------- */
-    /* 6. Image Preview */
-    /* -------------------------------------- */
-    #preview {
-        max-height: 250px;
-        object-fit: contain;
-        border: 1px solid var(--border-color);
-        padding: 5px;
-        background-color: #3a3a3a;
-    }
-</style>
-<div class="container" style="max-width: 600px; margin: auto; padding: 2rem;">
-    <h2 style="text-align:center;">📝 OCR Text Extractor</h2>
-
-    <div class="file-upload-box">
-        <label for="imageInput" style="display:block; margin-bottom:0.5rem;">Select an image file</label>
-        <input type="file" id="imageInput" accept="image/*" class="image-input" title="Upload an image file for text extraction" placeholder="Choose image file">
-        <br>
-        <button id="uploadBtn" class="action-button">
-            Extract Text
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav-mini-button">
+            <span class="navbar-toggler-icon"></span>
         </button>
+
+        <div class="collapse navbar-collapse" id="nav-mini-button">
+            <div class="navbar-nav ms-auto gap-2">
+                <a class="nav-link" data-bs-toggle="offcanvas" href="#history-off-canvas">History</a>
+                <a class="nav-link" data-bs-toggle="modal" href="#settingsModal">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-start" id="history-off-canvas">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">OCR History</h5>
+            <button class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body" id="historyList">
+            <div class="text-muted">Loading...</div>
+        </div>
     </div>
 
-    <div style="margin-top: 1.5rem; text-align:center;">
-        <img id="preview" src="" alt="Image preview" style="max-width: 100%; display:none; border-radius: 6px;"/>
+    <div class="modal fade" id="settingsModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tesseract Settings</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">PSM</label>
+                        <input type="number" id="psmInput" class="form-control" min="0" max="13">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">OEM</label>
+                        <input type="number" id="oemInput" class="form-control" min="0" max="3">
+                    </div>
+
+                    <button class="btn btn-primary w-100" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div style="margin-top: 2rem;">
-        <h3>📄 Extracted Text:</h3>
-        <label for="resultText" style="display:none;">Extracted Text</label>
-        <textarea id="resultText" rows="8" class="result-textarea" title="Extracted text area" placeholder="Extracted text will appear here"></textarea>
+    <!-- Main Content -->
+    <div class="flex-grow-1 d-flex justify-content-center align-items-center">
+        <div class="card p-5 shadow-lg rounded-4 border-0 text-center"
+             style="width: 420px;">
+
+            <label class="btn btn-primary btn-lg w-100 py-3 mb-3">
+                📤 Upload Image
+                <input type="file" id="fileInput" hidden>
+            </label>
+
+            <!-- Language Dropdown -->
+            <div class="dropdown mb-3">
+                <button id="languageBtn" class="btn btn-outline-secondary dropdown-toggle w-100"
+                        data-bs-toggle="dropdown">
+                    Select Language
+                </button>
+
+                <ul class="dropdown-menu w-100 text-center">
+                    <li><a class="dropdown-item" data-value="eng">English</a></li>
+                    <li><a class="dropdown-item" data-value="hin">Hindi</a></li>
+                </ul>
+            </div>
+
+            <textarea id="resultText"
+                      class="form-control mt-3"
+                      rows="6"
+                      placeholder="Extracted text will appear here..."
+                      readonly></textarea>
+        </div>
     </div>
 </div>
+
 <script>
-document.getElementById("uploadBtn").addEventListener("click", async () => {
-    const fileInput = document.getElementById("imageInput");
-    const file = fileInput.files[0];
-    if (!file) {
-        alert("Please select an image first!");
-        return;
-    }
+let selectedLang = "eng";
 
-    // Show preview
-    const preview = document.getElementById("preview");
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = "block";
+document.querySelectorAll(".dropdown-item").forEach(item => {
+    item.addEventListener("click", () => {
+        selectedLang = item.dataset.value;
+        document.getElementById("languageBtn").innerText = item.innerText;
 
-    // Send as raw bytes via FormData
+        fetch("/settings", {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ lang: selectedLang })
+        });
+    });
+});
+
+document.getElementById("fileInput").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
     const formData = new FormData();
     formData.append("file", file);
 
-    try {
-        const response = await fetch("/upload", {
-            method: "POST",
-            body: formData
-        });
+    document.getElementById("resultText").value = "Processing...";
 
-        const data = await response.json();
-        let error = data.error || null;
-        if (error) {
-            alert("Error: " + error);
-            return;
-        }
-        document.getElementById("resultText").value = data.text || "No text extracted.";
-    } catch (err) {
-        console.error(err);
-        alert("Error extracting text. Check console for details.");
-    }
+    const res = await fetch("/upload", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+    document.getElementById("resultText").value = data.text || "No text detected";
 });
+
+document.getElementById("history-off-canvas")
+    .addEventListener("shown.bs.offcanvas", async () => {
+
+    const container = document.getElementById("historyList");
+    container.innerHTML = "";
+
+    const res = await fetch("/history");
+    const data = await res.json();
+
+    if (!data.length) {
+        container.innerHTML = "<p class='text-muted'>No history available</p>";
+        return;
+    }
+
+    data.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "mb-3 border-bottom pb-2";
+        div.innerHTML = `
+            <small class="text-muted">${item.tesseract_config}</small>
+            <p class="mb-1">${item.extracted_text.slice(0, 100)}...</p>
+        `;
+        container.appendChild(div);
+    });
+});
+
+async function loadSettings() {
+    const res = await fetch("/settings");
+    const data = await res.json();
+
+    document.getElementById("psmInput").value = data.psm;
+    document.getElementById("oemInput").value = data.oem;
+}
+
+async function saveSettings() {
+    const psm = Number(document.getElementById("psmInput").value);
+    const oem = Number(document.getElementById("oemInput").value);
+
+    await fetch("/settings", {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ psm, oem })
+    });
+
+    alert("Settings updated");
+}
+
+document.getElementById("settingsModal")
+    .addEventListener("shown.bs.modal", loadSettings);
 </script>
+
 {% endblock %}
