@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import hashlib
 import sqlite3
-from uuid import uuid4
 
 import cv2
 import numpy as np
@@ -57,12 +57,16 @@ def preprocess_image(image_bytes: bytes):
 
 
 def save_file(file_bytes: bytes) -> str:
-    file_id = str(uuid4())
-    print(f"[FILE] Saving file with ID: {file_id}")
-    with open(f"uploads/{file_id}.png", "wb") as f:
+    file_hash = bytes_hash(file_bytes)
+    print(f"[FILE] Saving file with ID: {file_hash}")
+    with open(f"uploads/{file_hash}.png", "wb") as f:
         f.write(file_bytes)
     print("[FILE] File saved successfully.")
-    return file_id
+    return file_hash
+
+
+def bytes_hash(file_bytes: bytes) -> str:
+    return hashlib.sha256(file_bytes).hexdigest()
 
 
 @app.route("/upload", methods=["POST"])
@@ -79,6 +83,20 @@ def upload():
     file_bytes = file.read()
     print(f"[UPLOAD] File size: {len(file_bytes)} bytes")
 
+    file_hash = bytes_hash(file_bytes)
+    # Check for duplicate
+    cursor.execute(
+        "SELECT file_hash, extracted_text, tesseract_config FROM images WHERE file_hash = ?",
+        (file_hash,),
+    )
+    if cursor.fetchone():
+        print("[UPLOAD] Duplicate file detected. Fetching existing record.")
+        cursor.execute(
+            "SELECT extracted_text FROM images WHERE file_hash = ?", (file_hash,)
+        )
+        existing_text = cursor.fetchone()[0]
+        return jsonify({"text": existing_text})
+
     processed_image = preprocess_image(file_bytes)
     if processed_image is None:
         return jsonify({"error": "Invalid image"}), 400
@@ -91,32 +109,32 @@ def upload():
     )
     print("[OCR] Text extraction complete.")
 
-    file_id = save_file(file_bytes)
+    file_hash = save_file(file_bytes)
 
     statement = """
-        INSERT INTO images (file_id, extracted_text, tesseract_config)
+        INSERT INTO images (file_hash, extracted_text, tesseract_config)
         VALUES (?, ?, ?)
     """
     print("[DB] Inserting record into database...")
-    cursor.execute(statement, (file_id, extracted_text, config_settings))
+    cursor.execute(statement, (file_hash, extracted_text, config_settings))
     conn.commit()
     print("[DB] Insert committed.")
 
     return jsonify({"text": extracted_text})
 
 
-@app.route("/fetch/<file_id>")
-def get_image(file_id: str):
-    print(f"[API] /fetch called for file_id={file_id}")
+@app.route("/fetch/<file_hash>")
+def get_image(file_hash: str):
+    print(f"[API] /fetch called for file_hash={file_hash}")
 
-    cursor.execute("SELECT * FROM images WHERE file_id = ?", (file_id,))
+    cursor.execute("SELECT * FROM images WHERE file_hash = ?", (file_hash,))
     image = cursor.fetchone()
 
     if image:
         print("[DB] Record found.")
         return jsonify(
             {
-                "file_id": image[0],
+                "file_hash": image[0],
                 "extracted_text": image[1],
                 "tesseract_config": image[2],
             }
@@ -132,7 +150,7 @@ def get_images():
 
     cursor.execute(
         """
-        SELECT file_id, extracted_text, tesseract_config
+        SELECT file_hash, extracted_text, tesseract_config
         FROM images
         ORDER BY upload_timestamp DESC
         LIMIT 10
@@ -144,7 +162,7 @@ def get_images():
     return jsonify(
         [
             {
-                "file_id": image[0],
+                "file_hash": image[0],
                 "extracted_text": image[1],
                 "tesseract_config": image[2],
             }
